@@ -5,10 +5,13 @@ const express = require("express");
 const app = express();
 const PORT = 8000;
 const bodyParser = require("body-parser");
-const artists = require("./router/artistsRouter.js");
+const artistsUser = require("./router/artistsRouter.js");
+const artists = require("./router/getLocalArtistsRouter.js");
 
 app.use(bodyParser.json());
-app.use("/api/user/artist", artists);
+app.use(express.static("./profile-pics"));
+app.use("/api/user/artist", artistsUser);
+app.use("/api/artists", artists);
 
 app.listen(PORT, () => {
   console.log(`Hello.  Listening on port ${PORT}`);

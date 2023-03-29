@@ -19,10 +19,12 @@ const ArtistSchema = new mongoose.Schema({
     type: String,
   },
   profilePicture: {
-    type: String,
+    data: Buffer,
+    contentType: String,
   },
   bannerPicture: {
-    type: String,
+    data: Buffer,
+    contentType: String,
   },
   bio: {
     type: String,

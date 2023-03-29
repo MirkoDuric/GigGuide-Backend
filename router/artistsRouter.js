@@ -29,14 +29,14 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
   const { id } = req.params;
   const { name, username, password, genre, bio, city, country } = req.body;
-  Film.findByIdAndUpdate(
+  Artist.findByIdAndUpdate(
     id,
     { name, username, password, genre, bio, city, country },
     { new: true }
   )
     .then((data) => {
       if (!data) {
-        // Send 404 if no film is found with the specified _id
+        // Send 404 if no artist is found with the specified _id
         return res.sendStatus(404);
       }
       res.json(data);
@@ -50,10 +50,10 @@ router.put("/:id", (req, res) => {
 router.put("/:id/upload-profile-pic", (req, res) => {
   const { id } = req.params;
   const { profilePicture } = req.body;
-  Film.findByIdAndUpdate(id, { profilePicture }, { new: true })
+  Artist.findByIdAndUpdate(id, { profilePicture }, { new: true })
     .then((data) => {
       if (!data) {
-        // Send 404 if no film is found with the specified _id
+        // Send 404 if no artist is found with the specified _id
         return res.sendStatus(404);
       }
       res.json(data);
@@ -67,10 +67,10 @@ router.put("/:id/upload-profile-pic", (req, res) => {
 router.put("/:id/upload-banner-pic", (req, res) => {
   const { id } = req.params;
   const { bannerPicture } = req.body;
-  Film.findByIdAndUpdate(id, { bannerPicture }, { new: true })
+  Artist.findByIdAndUpdate(id, { bannerPicture }, { new: true })
     .then((data) => {
       if (!data) {
-        // Send 404 if no film is found with the specified _id
+        // Send 404 if no artist is found with the specified _id
         return res.sendStatus(404);
       }
       res.json(data);
@@ -87,7 +87,7 @@ router.delete("/:id", (req, res) => {
   Artist.findByIdAndDelete(id)
     .then((data) => {
       if (!data) {
-        // Send 404 if no film is found with the specified _id
+        // Send 404 if no artist is found with the specified _id
         return res.sendStatus(404);
       }
       res.sendStatus(204);

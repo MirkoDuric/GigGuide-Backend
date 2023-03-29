@@ -8,7 +8,7 @@ const bodyParser = require("body-parser");
 const artistsUser = require("./router/artistsRouter.js");
 const artists = require("./router/getLocalArtistsRouter.js");
 
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static("./profile-pics"));
 app.use("/api/user/artist", artistsUser);
 app.use("/api/artists", artists);

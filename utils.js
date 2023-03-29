@@ -1,5 +1,6 @@
 const path = require("path");
 const express = require("express");
+
 const checkFileType = function (file, cb) {
   //Allowed file extensions
   const fileTypes = /jpeg|jpg|png|gif|svg/; //check extension names

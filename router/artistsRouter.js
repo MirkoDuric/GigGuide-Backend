@@ -2,8 +2,22 @@ const express = require("express");
 const router = express.Router();
 require("dotenv").config();
 const multer = require("multer");
-const upload = multer();
+const { checkFileType } = require("../utils");
 const Artist = require("../models/Artist");
+
+const storage = multer.diskStorage({
+  destination: "./profile-pics",
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    checkFileType(file, cb);
+  },
+});
 
 //GET Create an endpoint to retrieve all local artists
 router.get("/", (req, res) => {
@@ -30,7 +44,7 @@ router.get("/:id", (req, res) => {
 // DELETE Create an endpoint that DELETES an existing local artist in artist collection
 router.delete("/:id", (req, res) => {
   const id = req.params.id;
-  Film.findByIdAndDelete(id)
+  Artist.findByIdAndDelete(id)
     .then((data) => {
       if (!data) {
         // Send 404 if no film is found with the specified _id
@@ -43,4 +57,18 @@ router.delete("/:id", (req, res) => {
       res.sendStatus(500);
     });
 });
+
+router.post(
+  "/upload-profile-pic",
+  upload.single("profile_pic"),
+  (req, res, next) => {
+    if (req.file) {
+      res.send("Single File Uploaded Successfully");
+      console.log(req.file);
+    } else {
+      res.status(400).send("Please upload a valid image");
+    }
+  }
+);
+
 module.exports = router;

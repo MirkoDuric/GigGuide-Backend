@@ -164,6 +164,48 @@ router.delete("/:id", (req, res) => {
     });
 });
 
+router.delete("/:id/song/:songid", (req, res) => {
+  const id = req.params.id;
+  const songId = req.params.songid;
+  Artist.updateOne(
+    { _id: id },
+    { $pull: { songsList: { _id: songId } } },
+    { safe: true, multi: false }
+  )
+    .then((data) => {
+      if (!data) {
+        // Send 404 if no artist is found with the specified _id
+        return res.sendStatus(404);
+      }
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.sendStatus(500);
+    });
+});
+
+router.delete("/:id/upcomingEvent/:eventid", (req, res) => {
+  const id = req.params.id;
+  const eventId = req.params.eventid;
+  Artist.updateOne(
+    { _id: id },
+    { $pull: { upcomingEvents: { _id: eventId } } },
+    { safe: true, multi: false }
+  )
+    .then((data) => {
+      if (!data) {
+        // Send 404 if no artist is found with the specified _id
+        return res.sendStatus(404);
+      }
+      res.sendStatus(204);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.sendStatus(500);
+    });
+});
+
 router.post(
   "/upload-profile-pic",
   upload.single("profile_pic"),

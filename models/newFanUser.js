@@ -5,6 +5,10 @@ const newFanUserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  age: {
+    type: Number,
+    required: true,
+  },
   username: {
     type: String,
     required: true,

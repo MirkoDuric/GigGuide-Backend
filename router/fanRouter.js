@@ -11,6 +11,7 @@ const fanUsers = require("../models/newFanUser");
 router.post("/adduser", (req, res) => {
   const {
     name,
+    age,
     username,
     password,
     favouriteGenre,
@@ -23,6 +24,7 @@ router.post("/adduser", (req, res) => {
   fanUsers
     .create({
       name,
+      age,
       username,
       password,
       favouriteGenre,

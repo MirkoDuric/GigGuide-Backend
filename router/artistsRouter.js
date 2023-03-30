@@ -4,6 +4,14 @@ require("dotenv").config();
 const multer = require("multer");
 const { checkFileType } = require("../utils");
 const Artist = require("../models/Artist");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { verifyToken } = require("../middlewares/auth");
+const secret = process.env.MY_SECRET;
+
+const generateToken = (data) => {
+  return jwt.sign(data, secret, { expiresIn: "1800s" }); //token expires in 30 minutes
+};
 
 const storage = multer.diskStorage({
   destination: "./profile-pics",
@@ -19,15 +27,55 @@ const upload = multer({
   },
 });
 
-router.post("/", (req, res) => {
-  const { name, username, password, city, country, members, bandUrl } =
-    req.body;
-  Artist.create({ name, username, password, city, country, members, bandUrl })
-    .then((data) => res.json(data))
-    .catch((e) => console.log(e.message));
+router.post("/signup", (req, res) => {
+  const {
+    name,
+    username,
+    email,
+    password,
+    city,
+    country,
+    genre,
+    members,
+    bandUrl,
+  } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hashedPassword) => {
+      Artist.create({
+        name,
+        username,
+        email,
+        password: hashedPassword,
+        city,
+        country,
+        genre,
+        members,
+        bandUrl,
+      })
+        .then((data) => res.json(data))
+        .catch((e) => console.log(e.message));
+    })
+    .catch((e) => res.sendStatus(500));
 });
 
-router.put("/:id", (req, res) => {
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+  Artist.findOne({ username }).then((user) => {
+    if (!user) {
+      return res.status(404).send("username not found");
+    }
+    bcrypt.compare(password, user.password).then((validPassword) => {
+      if (!validPassword) {
+        return res.status(404).send("password incorrect");
+      }
+      const token = generateToken({ username: user.username });
+      res.json({ token });
+    });
+  });
+});
+
+router.put("/:id", verifyToken, (req, res) => {
   const { id } = req.params;
   const {
     name,
@@ -39,10 +87,22 @@ router.put("/:id", (req, res) => {
     country,
     members,
     bandUrl,
+    email,
   } = req.body;
   Artist.findByIdAndUpdate(
     id,
-    { name, username, password, genre, bio, city, country, members, bandUrl },
+    {
+      name,
+      username,
+      password,
+      genre,
+      bio,
+      city,
+      country,
+      members,
+      bandUrl,
+      email,
+    },
     { new: true }
   )
     .then((data) => {
@@ -60,6 +120,7 @@ router.put("/:id", (req, res) => {
 
 router.put(
   "/:id/upload-profile-pic",
+  verifyToken,
   upload.single("profile_pic"),
   (req, res) => {
     const { id } = req.params;
@@ -79,7 +140,7 @@ router.put(
   }
 );
 
-router.put("/:id/upload-banner-pic", (req, res) => {
+router.put("/:id/upload-banner-pic", verifyToken, (req, res) => {
   const { id } = req.params;
   const { bannerPicture } = req.body;
   Artist.findByIdAndUpdate(id, { bannerPicture }, { new: true })
@@ -96,7 +157,7 @@ router.put("/:id/upload-banner-pic", (req, res) => {
     });
 });
 
-router.put("/:id/upcomingEvent", (req, res) => {
+router.put("/:id/upcomingEvent", verifyToken, (req, res) => {
   const { id } = req.params;
   const { date, startTime, venue, address, ticketUrl, info } = req.body;
   const upcomingEvent = {
@@ -125,7 +186,7 @@ router.put("/:id/upcomingEvent", (req, res) => {
     });
 });
 
-router.put("/:id/song", (req, res) => {
+router.put("/:id/song", verifyToken, (req, res) => {
   const { id } = req.params;
   const { name, duration, url } = req.body;
   const song = {
@@ -148,7 +209,7 @@ router.put("/:id/song", (req, res) => {
 });
 
 // DELETE Create an endpoint that DELETES an existing local artist in artist collection
-router.delete("/:id", (req, res) => {
+router.delete("/:id", verifyToken, (req, res) => {
   const id = req.params.id;
   Artist.findByIdAndDelete(id)
     .then((data) => {
@@ -164,7 +225,7 @@ router.delete("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id/song/:songid", (req, res) => {
+router.delete("/:id/song/:songid", verifyToken, (req, res) => {
   const id = req.params.id;
   const songId = req.params.songid;
   Artist.updateOne(
@@ -185,7 +246,7 @@ router.delete("/:id/song/:songid", (req, res) => {
     });
 });
 
-router.delete("/:id/upcomingEvent/:eventid", (req, res) => {
+router.delete("/:id/upcomingEvent/:eventid", verifyToken, (req, res) => {
   const id = req.params.id;
   const eventId = req.params.eventid;
   Artist.updateOne(

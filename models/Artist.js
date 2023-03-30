@@ -10,6 +10,7 @@ const ArtistSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
+    unique: true,
   },
   password: {
     type: String,
@@ -82,6 +83,13 @@ const ArtistSchema = new mongoose.Schema({
       },
     ],
     default: undefined,
+  },
+  members: {
+    type: [String],
+    default: undefined,
+  },
+  bandUrl: {
+    type: String,
   },
 });
 

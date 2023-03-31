@@ -1,14 +1,22 @@
 require("dotenv").config();
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
 const fanUsers = require("../models/newFanUser");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const { verifyToken } = require("../middlewares/auth");
 
 // const multer = require("multer");
 // const upload = multer();
 
+const secret = process.env.MY_SECRET;
+
+const generateToken = (data) => {
+  return jwt.sign(data, secret, { expiresIn: "1800s" });
+};
+
 // POST method for saving new fan user to the database, username unique
-router.post("/adduser", (req, res) => {
+router.post("/signup", (req, res) => {
   const {
     name,
     age,
@@ -22,28 +30,52 @@ router.post("/adduser", (req, res) => {
     favouriteSongs,
     planedEvents,
   } = req.body;
-  fanUsers
-    .create({
-      name,
-      age,
-      username,
-      password,
-      favouriteGenre,
-      profilePicture,
-      city,
-      country,
-      favouriteArtists,
-      favouriteSongs,
-      planedEvents,
+  bcrypt
+    .hash(password, 10)
+    .then((hashedPassword) => {
+      fanUsers
+        .create({
+          name,
+          age,
+          username,
+          password: hashedPassword,
+          favouriteGenre,
+          profilePicture,
+          city,
+          country,
+          favouriteArtists,
+          favouriteSongs,
+          planedEvents,
+        })
+        .then((data) => res.json(data))
+        .catch((err) => {
+          if (err.code === 11000) {
+            res.status(400).json({ message: "Username already exists" });
+          } else {
+            res.status(500).json({ message: "Internal server error" });
+          }
+        });
     })
-    .then((data) => res.json(data))
-    .catch((err) => {
-      if (err.code === 11000) {
-        res.status(400).json({ message: "Username already exists" });
-      } else {
-        res.status(500).json({ message: "Internal server error" });
-      }
+    .catch(() => {
+      res.sendStatus(500);
     });
+});
+
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  fanUsers.findOne({ username }).then((user) => {
+    if (!user) {
+      return res.status(404).send("Invalid credentials");
+    }
+    bcrypt.compare(password, user.password).then((validPassword) => {
+      if (!validPassword) {
+        return res.status(404).send("Invalid credentials");
+      }
+      const token = generateToken({ username: user.username });
+      res.json({ token });
+    });
+  });
 });
 
 // GET method, not that relevant for fan users at this point, they won't be in search list
@@ -58,7 +90,7 @@ router.get("/getusers", async (req, res) => {
 });
 
 //PUT method to update user info
-router.put("/updateuserdata/:username", (req, res) => {
+router.put("/updateuserdata/:username", verifyToken, (req, res) => {
   const namefilter = req.params.username;
   const {
     name,
@@ -73,6 +105,39 @@ router.put("/updateuserdata/:username", (req, res) => {
     favouriteSongs,
     planedEvents,
   } = req.body;
+  bcrypt
+    .hash(password, 10)
+    .then((hashedPassword) => {
+      fanUsers
+        .findOneAndUpdate(
+          { username: namefilter },
+          {
+            name,
+            age,
+            username,
+            password: hashedPassword,
+            favouriteGenre,
+            profilePicture,
+            city,
+            country,
+            favouriteArtists,
+            favouriteSongs,
+            planedEvents,
+          },
+          { new: true }
+        )
+        .then((data) => res.json(data))
+        .catch((err) => {
+          if (err.code === 11000) {
+            res.status(400).json({ message: "Username already exists" });
+          } else {
+            res.status(500).json({ message: "Internal server error" });
+          }
+        });
+    })
+    .catch(() => {
+      res.sendStatus(500);
+    });
   fanUsers
     .findOneAndUpdate(
       { username: namefilter },
@@ -101,7 +166,7 @@ router.put("/updateuserdata/:username", (req, res) => {
 });
 
 //DELETE method to delete specific user by username, username unique
-router.delete("/deleteuser/:username", (req, res) => {
+router.delete("/deleteuser/:username", verifyToken, (req, res) => {
   const username = req.params.username;
   fanUsers
     .deleteOne({ username: `${username}` })

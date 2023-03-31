@@ -15,7 +15,14 @@ const generateToken = (data) => {
 
 //setting multer for profile pics
 const storage = multer.diskStorage({
-  destination: "./profile-pics",
+  destination: (req, file, cb) => {
+    if (file.fieldname === "profile") {
+      cb(null, "./profile-pics");
+    }
+    if (file.fieldname === "banner") {
+      cb(null, "./banner-pics");
+    }
+  },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
   },
@@ -28,39 +35,113 @@ const upload = multer({
   },
 });
 
-router.post("/signup", upload.single("profile-pic"), (req, res) => {
-  const {
-    name,
-    username,
-    email,
-    password,
-    city,
-    country,
-    genre,
-    members,
-    bandUrl,
-  } = req.body;
-  const profilePicture = req.file.path;
-  bcrypt
-    .hash(password, 10)
-    .then((hashedPassword) => {
-      Artist.create({
-        name,
-        username,
-        email,
-        password: hashedPassword,
-        city,
-        country,
-        genre,
-        members,
-        bandUrl,
-        profilePicture,
-      })
-        .then((data) => res.json(data))
+router.post(
+  "/signup",
+  upload.fields([
+    { name: "profile", maxCount: 1 },
+    { name: "banner", maxCount: 1 },
+  ]),
+  (req, res) => {
+    const {
+      name,
+      username,
+      email,
+      password,
+      city,
+      country,
+      genre,
+      members,
+      bandUrl,
+    } = req.body;
+    let profilePicture = null;
+    let bannerPicture = null;
+    if (req.files.profile && req.files.banner) {
+      const profilePicture = req.files.profile[0].path;
+      const bannerPicture = req.files.banner[0].path;
+      bcrypt
+        .hash(password, 10)
+        .then((hashedPassword) => {
+          Artist.create({
+            name,
+            username,
+            email,
+            password: hashedPassword,
+            city,
+            country,
+            genre,
+            members,
+            bandUrl,
+            profilePicture,
+            bannerPicture,
+          })
+            .then((data) => res.json(data))
+            .catch((e) => console.log(e.message));
+        })
         .catch((e) => console.log(e.message));
-    })
-    .catch((e) => res.sendStatus(500));
-});
+    } else if (req.files.profile) {
+      const profilePicture = req.files.profile[0].path;
+      bcrypt
+        .hash(password, 10)
+        .then((hashedPassword) => {
+          Artist.create({
+            name,
+            username,
+            email,
+            password: hashedPassword,
+            city,
+            country,
+            genre,
+            members,
+            bandUrl,
+            profilePicture,
+          })
+            .then((data) => res.json(data))
+            .catch((e) => console.log(e.message));
+        })
+        .catch((e) => console.log(e.message));
+    } else if (req.files.banner) {
+      const bannerPicture = req.files.banner[0].path;
+      bcrypt
+        .hash(password, 10)
+        .then((hashedPassword) => {
+          Artist.create({
+            name,
+            username,
+            email,
+            password: hashedPassword,
+            city,
+            country,
+            genre,
+            members,
+            bandUrl,
+            bannerPicture,
+          })
+            .then((data) => res.json(data))
+            .catch((e) => console.log(e.message));
+        })
+        .catch((e) => console.log(e.message));
+    } else {
+      bcrypt
+        .hash(password, 10)
+        .then((hashedPassword) => {
+          Artist.create({
+            name,
+            username,
+            email,
+            password: hashedPassword,
+            city,
+            country,
+            genre,
+            members,
+            bandUrl,
+          })
+            .then((data) => res.json(data))
+            .catch((e) => console.log(e.message));
+        })
+        .catch((e) => console.log(e.message));
+    }
+  }
+);
 
 router.post("/login", (req, res) => {
   const { username, password } = req.body;

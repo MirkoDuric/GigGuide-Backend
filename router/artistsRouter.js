@@ -13,6 +13,7 @@ const generateToken = (data) => {
   return jwt.sign(data, secret, { expiresIn: "1800s" }); //token expires in 30 minutes
 };
 
+//setting multer for profile pics
 const storage = multer.diskStorage({
   destination: "./profile-pics",
   filename: (req, file, cb) => {
@@ -27,7 +28,7 @@ const upload = multer({
   },
 });
 
-router.post("/signup", (req, res) => {
+router.post("/signup", upload.single("profile-pic"), (req, res) => {
   const {
     name,
     username,
@@ -39,6 +40,7 @@ router.post("/signup", (req, res) => {
     members,
     bandUrl,
   } = req.body;
+  const profilePicture = req.file.path;
   bcrypt
     .hash(password, 10)
     .then((hashedPassword) => {
@@ -52,6 +54,7 @@ router.post("/signup", (req, res) => {
         genre,
         members,
         bandUrl,
+        profilePicture,
       })
         .then((data) => res.json(data))
         .catch((e) => console.log(e.message));
@@ -75,7 +78,7 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.put("/:id", verifyToken, (req, res) => {
+router.put("/:id", verifyToken, upload.single("profile-pic"), (req, res) => {
   const { id } = req.params;
   const {
     name,
@@ -89,6 +92,7 @@ router.put("/:id", verifyToken, (req, res) => {
     bandUrl,
     email,
   } = req.body;
+  const profilePicture = req.file.path;
   Artist.findByIdAndUpdate(
     id,
     {
@@ -102,6 +106,7 @@ router.put("/:id", verifyToken, (req, res) => {
       members,
       bandUrl,
       email,
+      profilePicture,
     },
     { new: true }
   )
@@ -140,22 +145,27 @@ router.put(
   }
 );
 
-router.put("/:id/upload-banner-pic", verifyToken, (req, res) => {
-  const { id } = req.params;
-  const { bannerPicture } = req.body;
-  Artist.findByIdAndUpdate(id, { bannerPicture }, { new: true })
-    .then((data) => {
-      if (!data) {
-        // Send 404 if no artist is found with the specified _id
-        return res.sendStatus(404);
-      }
-      res.json(data);
-    })
-    .catch((err) => {
-      console.log(err.message);
-      res.sendStatus(500);
-    });
-});
+router.put(
+  "/:id/upload-banner-pic",
+  verifyToken,
+  upload.single("banner-pic"),
+  (req, res) => {
+    const { id } = req.params;
+    const { bannerPicture } = req.body;
+    Artist.findByIdAndUpdate(id, { bannerPicture }, { new: true })
+      .then((data) => {
+        if (!data) {
+          // Send 404 if no artist is found with the specified _id
+          return res.sendStatus(404);
+        }
+        res.json(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+        res.sendStatus(500);
+      });
+  }
+);
 
 router.put("/:id/upcomingEvent", verifyToken, (req, res) => {
   const { id } = req.params;
@@ -195,6 +205,59 @@ router.put("/:id/song", verifyToken, (req, res) => {
     url: url,
   };
   Artist.findByIdAndUpdate(id, { $push: { songsList: song } }, { new: true })
+    .then((data) => {
+      if (!data) {
+        // Send 404 if no artist is found with the specified _id
+        return res.sendStatus(404);
+      }
+      res.json(data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.sendStatus(500);
+    });
+});
+
+router.put("/:id/song/:songId", verifyToken, (req, res) => {
+  const { id, songId } = req.params;
+  const { name, duration, url } = req.body;
+  Artist.updateOne(
+    { _id: id, "songsList._id": songId },
+    { $set: { "songsList.$": { name, duration, url } } },
+    { new: true }
+  )
+    .then((data) => {
+      if (!data) {
+        // Send 404 if no artist is found with the specified _id
+        return res.sendStatus(404);
+      }
+      res.json(data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.sendStatus(500);
+    });
+});
+
+router.put("/:id/upcomingEvent/:eventid", verifyToken, (req, res) => {
+  const { id, eventId } = req.params;
+  const { date, startTime, venue, address, ticketUrl, info } = req.body;
+  Artist.updateOne(
+    { _id: id, "upcomingEvents._id": eventId },
+    {
+      $set: {
+        "upcomingEvents.$": {
+          date,
+          startTime,
+          venue,
+          address,
+          ticketUrl,
+          info,
+        },
+      },
+    },
+    { new: true }
+  )
     .then((data) => {
       if (!data) {
         // Send 404 if no artist is found with the specified _id
@@ -269,11 +332,11 @@ router.delete("/:id/upcomingEvent/:eventid", verifyToken, (req, res) => {
 
 router.post(
   "/upload-profile-pic",
-  upload.single("profile_pic"),
+  upload.single("profile-pic"),
   (req, res, next) => {
     if (req.file) {
       res.send(
-        `<h2>Here is the picture:</h2><img src='http://localhost:8000/${req.file.originalname}' alt='something'/>`
+        `<h2>Here is the picture:</h2><img src='http://localhost:8000/profile-pics/${req.file.originalname}' alt='something'/>`
       );
       console.log(req.file);
     } else {

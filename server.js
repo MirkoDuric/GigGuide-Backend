@@ -9,7 +9,9 @@ const artistsUser = require("./router/artistsRouter.js");
 const artists = require("./router/getLocalArtistsRouter.js");
 
 app.use(bodyParser.json());
-app.use(express.static("./profile-pics"));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use("/profile-pics", express.static("./profile-pics"));
+app.use("/banner-pics", express.static("./banner-pics"));
 app.use("/api/user/artist", artistsUser);
 app.use("/api/artists", artists);
 

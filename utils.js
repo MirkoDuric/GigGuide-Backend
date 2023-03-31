@@ -1,9 +1,8 @@
 const path = require("path");
-const express = require("express");
 
 const checkFileType = function (file, cb) {
   //Allowed file extensions
-  const fileTypes = /jpeg|jpg|png|gif|svg/; //check extension names
+  const fileTypes = /jpeg|jpg|png|svg/; //check extension names
 
   const extName = fileTypes.test(path.extname(file.originalname).toLowerCase());
 
@@ -12,7 +11,7 @@ const checkFileType = function (file, cb) {
   if (mimeType && extName) {
     return cb(null, true);
   } else {
-    cb("Error: You can Only Upload Images!!");
+    cb("Error: Please only upload .jpeg, .jpg, .png, or .svg files", false);
   }
 };
 

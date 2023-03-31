@@ -57,62 +57,47 @@ router.get("/getusers", async (req, res) => {
   }
 });
 
-//PUT method to update different properties but no arrays
-router.put("/updateuser/:username/:tobeupdated/:newvalue", (req, res) => {
-  const { username, tobeupdated, newvalue } = req.params;
+//PUT method to update user info
+router.put("/updateuserdata/:username", (req, res) => {
+  const namefilter = req.params.username;
+  const {
+    name,
+    age,
+    username,
+    password,
+    favouriteGenre,
+    profilePicture,
+    city,
+    country,
+    favouriteArtists,
+    favouriteSongs,
+    planedEvents,
+  } = req.body;
   fanUsers
     .findOneAndUpdate(
-      { username: `${username}` },
-      { $set: { [tobeupdated]: newvalue } },
+      { username: namefilter },
       {
-        new: true,
-      }
+        name,
+        age,
+        username,
+        password,
+        favouriteGenre,
+        profilePicture,
+        city,
+        country,
+        favouriteArtists,
+        favouriteSongs,
+        planedEvents,
+      },
+      { new: true }
     )
     .then((result) => {
       console.log("Record updated successfully");
       res.send(result);
     })
     .catch((err) => {
-      console.log(err);
+      console.error(err.message);
     });
-});
-
-//Removing or adding one or more elements from an array favouriteGenre, favouriteArtists or favouriteSongs
-router.put("/:addorremove/:username/:tobeupdated/:value", (req, res) => {
-  const { addorremove, username, tobeupdated, value } = req.params;
-  let updateObject = {};
-  updateObject[tobeupdated] = value.split(",");
-  if (addorremove === "addtothearray") {
-    fanUsers
-      .findOneAndUpdate(
-        { username: username },
-        { $addToSet: { [tobeupdated]: { $each: updateObject[tobeupdated] } } },
-        {
-          new: true,
-        }
-      )
-      .then((result) => {
-        console.log("Record updated successfully");
-        res.send(result);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  } else if (addorremove === "removefromarray") {
-    fanUsers
-      .findOneAndUpdate(
-        { username: username },
-        { $pull: { [tobeupdated]: { $in: updateObject[tobeupdated] } } },
-        { new: true }
-      )
-      .then((result) => {
-        console.log(`${tobeupdated} updated successfully`);
-        res.send(result);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
 });
 
 //DELETE method to delete specific user by username, username unique

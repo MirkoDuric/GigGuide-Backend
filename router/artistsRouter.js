@@ -181,16 +181,12 @@ router.put(
     const getProfilePicture = () => {
       if (req.files.profile) {
         return req.files.profile[0].path;
-      } else {
-        //logic to return current profile pic
       }
     };
     const profilePicture = getProfilePicture();
     const getBannerPicture = () => {
       if (req.files.banner) {
         return req.files.banner[0].path;
-      } else {
-        //logic to return current banner pic
       }
     };
     const bannerPicture = getBannerPicture();

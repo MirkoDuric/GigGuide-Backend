@@ -53,8 +53,6 @@ router.post(
       members,
       bandUrl,
     } = req.body;
-    let profilePicture = null;
-    let bannerPicture = null;
     if (req.files.profile && req.files.banner) {
       const profilePicture = req.files.profile[0].path;
       const bannerPicture = req.files.banner[0].path;
@@ -159,24 +157,16 @@ router.post("/login", (req, res) => {
   });
 });
 
-router.put("/:id", verifyToken, upload.single("profile-pic"), (req, res) => {
-  const { id } = req.params;
-  const {
-    name,
-    username,
-    password,
-    genre,
-    bio,
-    city,
-    country,
-    members,
-    bandUrl,
-    email,
-  } = req.body;
-  const profilePicture = req.file.path;
-  Artist.findByIdAndUpdate(
-    id,
-    {
+router.put(
+  "/:id",
+  verifyToken,
+  upload.fields([
+    { name: "profile", maxCount: 1 },
+    { name: "banner", maxCount: 1 },
+  ]),
+  (req, res) => {
+    const { id } = req.params;
+    const {
       name,
       username,
       password,
@@ -187,22 +177,58 @@ router.put("/:id", verifyToken, upload.single("profile-pic"), (req, res) => {
       members,
       bandUrl,
       email,
-      profilePicture,
-    },
-    { new: true }
-  )
-    .then((data) => {
-      if (!data) {
-        // Send 404 if no artist is found with the specified _id
-        return res.sendStatus(404);
+    } = req.body;
+    const getProfilePicture = () => {
+      if (req.files.profile) {
+        return req.files.profile[0].path;
+      } else {
+        //logic to return current profile pic
       }
-      res.json(data);
-    })
-    .catch((err) => {
-      console.log(err.message);
-      res.sendStatus(500);
-    });
-});
+    };
+    const profilePicture = getProfilePicture();
+    const getBannerPicture = () => {
+      if (req.files.banner) {
+        return req.files.banner[0].path;
+      } else {
+        //logic to return current banner pic
+      }
+    };
+    const bannerPicture = getBannerPicture();
+    bcrypt
+      .hash(password, 10)
+      .then((hashedPassword) => {
+        Artist.findByIdAndUpdate(
+          id,
+          {
+            name,
+            username,
+            email,
+            password: hashedPassword,
+            city,
+            country,
+            genre,
+            members,
+            bandUrl,
+            profilePicture,
+            bannerPicture,
+          },
+          { new: true }
+        )
+          .then((data) => {
+            if (!data) {
+              // Send 404 if no artist is found with the specified _id
+              return res.sendStatus(404);
+            }
+            res.json(data);
+          })
+          .catch((err) => {
+            console.log(err.message);
+            res.sendStatus(500);
+          });
+      })
+      .catch((e) => console.log(e.message));
+  }
+);
 
 router.put(
   "/:id/upload-profile-pic",

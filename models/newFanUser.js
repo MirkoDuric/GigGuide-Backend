@@ -6,7 +6,7 @@ const newFanUserSchema = new mongoose.Schema({
     required: true,
   },
   age: {
-    type: Number,
+    type: mongoose.Schema.Types.Mixed,
     required: true,
   },
   username: {
@@ -19,8 +19,7 @@ const newFanUserSchema = new mongoose.Schema({
     required: true,
   },
   favouriteGenre: {
-    type: [String],
-    default: undefined,
+    type: Array,
   },
   profilePicture: {
     type: String,
@@ -34,11 +33,15 @@ const newFanUserSchema = new mongoose.Schema({
     required: true,
   },
   favouriteArtists: {
-    type: [String],
+    type: Array,
     default: undefined,
   },
   favouriteSongs: {
-    type: [String],
+    type: Array,
+    default: undefined,
+  },
+  planedEvents: {
+    type: Array,
     default: undefined,
   },
 });

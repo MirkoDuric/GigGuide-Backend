@@ -20,6 +20,7 @@ router.post("/adduser", (req, res) => {
     country,
     favouriteArtists,
     favouriteSongs,
+    planedEvents,
   } = req.body;
   fanUsers
     .create({
@@ -33,6 +34,7 @@ router.post("/adduser", (req, res) => {
       country,
       favouriteArtists,
       favouriteSongs,
+      planedEvents,
     })
     .then((data) => res.json(data))
     .catch((err) => {
@@ -55,23 +57,17 @@ router.get("/getusers", async (req, res) => {
   }
 });
 
-//PUT method to update different properties
+//PUT method to update different properties but no arrays
 router.put("/updateuser/:username/:tobeupdated/:newvalue", (req, res) => {
-  const username = req.params.username;
-  const tobeupdated = req.params.tobeupdated;
-  const newvalue = req.params.newvalue;
-  let updateObject = {};
-  if (
-    tobeupdated === "favouriteGenre" ||
-    tobeupdated === "favouriteArtists" ||
-    tobeupdated === "favouriteSongs"
-  ) {
-    updateObject[tobeupdated] = newvalue.split(",");
-  } else {
-    updateObject[tobeupdated] = newvalue;
-  }
+  const { username, tobeupdated, newvalue } = req.params;
   fanUsers
-    .findOneAndUpdate({ username: `${username}` }, updateObject, { new: true })
+    .findOneAndUpdate(
+      { username: `${username}` },
+      { $set: { [tobeupdated]: newvalue } },
+      {
+        new: true,
+      }
+    )
     .then((result) => {
       console.log("Record updated successfully");
       res.send(result);
@@ -79,6 +75,44 @@ router.put("/updateuser/:username/:tobeupdated/:newvalue", (req, res) => {
     .catch((err) => {
       console.log(err);
     });
+});
+
+//Removing or adding one or more elements from an array favouriteGenre, favouriteArtists or favouriteSongs
+router.put("/:addorremove/:username/:tobeupdated/:value", (req, res) => {
+  const { addorremove, username, tobeupdated, value } = req.params;
+  let updateObject = {};
+  updateObject[tobeupdated] = value.split(",");
+  if (addorremove === "addtothearray") {
+    fanUsers
+      .findOneAndUpdate(
+        { username: username },
+        { $addToSet: { [tobeupdated]: { $each: updateObject[tobeupdated] } } },
+        {
+          new: true,
+        }
+      )
+      .then((result) => {
+        console.log("Record updated successfully");
+        res.send(result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  } else if (addorremove === "removefromarray") {
+    fanUsers
+      .findOneAndUpdate(
+        { username: username },
+        { $pull: { [tobeupdated]: { $in: updateObject[tobeupdated] } } },
+        { new: true }
+      )
+      .then((result) => {
+        console.log(`${tobeupdated} updated successfully`);
+        res.send(result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 });
 
 //DELETE method to delete specific user by username, username unique
@@ -92,8 +126,8 @@ router.delete("/deleteuser/:username", (req, res) => {
           "Username not found. Please check the username and type the existing one"
         );
       } else {
-        console.log("Record deleted successfully");
-        res.send("Record deleted successfully");
+        console.log("User deleted successfully");
+        res.send("User deleted successfully");
         res.json(result);
       }
     })

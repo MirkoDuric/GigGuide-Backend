@@ -55,6 +55,12 @@ const ArtistSchema = new mongoose.Schema(
           url: {
             type: String,
           },
+          releaseDate: {
+            type: Date,
+          },
+          album: {
+            type: String,
+          },
         },
       ],
       default: undefined,

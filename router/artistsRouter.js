@@ -226,50 +226,6 @@ router.put(
   }
 );
 
-router.put(
-  "/:id/upload-profile-pic",
-  verifyToken,
-  upload.single("profile_pic"),
-  (req, res) => {
-    const { id } = req.params;
-    const { profilePicture } = req.file;
-    Artist.findByIdAndUpdate(id, { profilePicture }, { new: true })
-      .then((data) => {
-        if (!data) {
-          // Send 404 if no artist is found with the specified _id
-          return res.sendStatus(404);
-        }
-        res.json(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-        res.sendStatus(500);
-      });
-  }
-);
-
-router.put(
-  "/:id/upload-banner-pic",
-  verifyToken,
-  upload.single("banner-pic"),
-  (req, res) => {
-    const { id } = req.params;
-    const { bannerPicture } = req.body;
-    Artist.findByIdAndUpdate(id, { bannerPicture }, { new: true })
-      .then((data) => {
-        if (!data) {
-          // Send 404 if no artist is found with the specified _id
-          return res.sendStatus(404);
-        }
-        res.json(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-        res.sendStatus(500);
-      });
-  }
-);
-
 router.put("/:id/upcomingEvent", verifyToken, (req, res) => {
   const { id } = req.params;
   const { date, startTime, venue, address, ticketUrl, info } = req.body;
@@ -301,11 +257,14 @@ router.put("/:id/upcomingEvent", verifyToken, (req, res) => {
 
 router.put("/:id/song", verifyToken, (req, res) => {
   const { id } = req.params;
-  const { name, duration, url } = req.body;
+  const { name, duration, url, releaseDate, album } = req.body;
+
   const song = {
     name: name,
     duration: duration,
     url: url,
+    releaseDate: releaseDate,
+    album: album,
   };
   Artist.findByIdAndUpdate(id, { $push: { songsList: song } }, { new: true })
     .then((data) => {
@@ -323,10 +282,10 @@ router.put("/:id/song", verifyToken, (req, res) => {
 
 router.put("/:id/song/:songId", verifyToken, (req, res) => {
   const { id, songId } = req.params;
-  const { name, duration, url } = req.body;
+  const { name, duration, url, releaseDate, album } = req.body;
   Artist.updateOne(
     { _id: id, "songsList._id": songId },
-    { $set: { "songsList.$": { name, duration, url } } },
+    { $update: { "songsList.$": { name, duration, url, releaseDate, album } } },
     { new: true }
   )
     .then((data) => {

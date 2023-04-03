@@ -189,7 +189,7 @@ router.post("/login", (req, res) => {
 
 router.put(
   "/:id",
-  verifyToken,
+
   upload.fields([
     { name: "profile", maxCount: 1 },
     { name: "banner", maxCount: 1 },
@@ -267,7 +267,7 @@ router.put(
   }
 );
 
-router.put("/:id/upcomingEvent", verifyToken, (req, res) => {
+router.put("/:id/upcomingEvent", (req, res) => {
   const { id } = req.params;
   const { date, startTime, venue, address, ticketUrl, info } = req.body;
   const upcomingEvent = {
@@ -296,7 +296,7 @@ router.put("/:id/upcomingEvent", verifyToken, (req, res) => {
     });
 });
 
-router.put("/:id/song", verifyToken, (req, res) => {
+router.put("/:id/song", (req, res) => {
   const { id } = req.params;
   const { name, duration, url, releaseDate, album } = req.body;
 
@@ -321,7 +321,7 @@ router.put("/:id/song", verifyToken, (req, res) => {
     });
 });
 
-router.put("/:id/song/:songId", verifyToken, (req, res) => {
+router.put("/:id/song/:songId", (req, res) => {
   const { id, songId } = req.params;
   const { name, duration, url, releaseDate, album } = req.body;
   User.updateOne(
@@ -342,7 +342,7 @@ router.put("/:id/song/:songId", verifyToken, (req, res) => {
     });
 });
 
-router.put("/:id/upcomingEvent/:eventid", verifyToken, (req, res) => {
+router.put("/:id/upcomingEvent/:eventid", (req, res) => {
   const { id, eventId } = req.params;
   const { date, startTime, venue, address, ticketUrl, info } = req.body;
   User.updateOne(
@@ -375,7 +375,7 @@ router.put("/:id/upcomingEvent/:eventid", verifyToken, (req, res) => {
 });
 
 // DELETE Create an endpoint that DELETES an existing local artist in artist collection
-router.delete("/:id", verifyToken, (req, res) => {
+router.delete("/:id", (req, res) => {
   const id = req.params.id;
   User.findByIdAndDelete(id)
     .then((data) => {
@@ -391,7 +391,7 @@ router.delete("/:id", verifyToken, (req, res) => {
     });
 });
 
-router.delete("/:id/song/:songid", verifyToken, (req, res) => {
+router.delete("/:id/song/:songid", (req, res) => {
   const id = req.params.id;
   const songId = req.params.songid;
   User.updateOne(
@@ -412,7 +412,7 @@ router.delete("/:id/song/:songid", verifyToken, (req, res) => {
     });
 });
 
-router.delete("/:id/upcomingEvent/:eventid", verifyToken, (req, res) => {
+router.delete("/:id/upcomingEvent/:eventid", (req, res) => {
   const id = req.params.id;
   const eventId = req.params.eventid;
   User.updateOne(

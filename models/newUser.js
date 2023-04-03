@@ -6,6 +6,11 @@ const newUserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
     age: {
       type: Number,
       required: true,
@@ -23,6 +28,9 @@ const newUserSchema = new mongoose.Schema(
       type: Array,
     },
     profilePicture: {
+      type: String,
+    },
+    bannerPicture: {
       type: String,
     },
     city: {
@@ -49,9 +57,74 @@ const newUserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    bio: {
+      type: String,
+    },
+    genre: {
+      type: String,
+    },
+    songsList: {
+      type: [
+        {
+          name: {
+            type: String,
+            required: true,
+          },
+          duration: {
+            type: Number,
+          },
+          url: {
+            type: String,
+          },
+          releaseDate: {
+            type: Date,
+          },
+          album: {
+            type: String,
+          },
+        },
+      ],
+      default: undefined,
+    },
+    upcomingEvents: {
+      type: [
+        {
+          date: {
+            type: Date,
+            required: true,
+          },
+          startTime: {
+            type: Date,
+            required: true,
+          },
+          venue: {
+            type: String,
+            required: true,
+          },
+          address: {
+            type: String,
+            required: true,
+          },
+          ticketUrl: {
+            type: String,
+          },
+          info: {
+            type: String,
+          },
+        },
+      ],
+      default: undefined,
+    },
+    members: {
+      type: [String],
+      default: undefined,
+    },
+    bandUrl: {
+      type: String,
+    },
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("fanUsers", newUserSchema);
+const User = mongoose.model("User", newUserSchema);
 module.exports = User;

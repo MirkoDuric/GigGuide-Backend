@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 
-const newFanUserSchema = new mongoose.Schema(
+const newUserSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
     },
     age: {
-      type: mongoose.Schema.Types.Mixed,
+      type: Number,
       required: true,
     },
     username: {
@@ -45,9 +45,13 @@ const newFanUserSchema = new mongoose.Schema(
       type: Array,
       default: undefined,
     },
+    userType: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );
 
-const fanUsers = mongoose.model("fanUsers", newFanUserSchema);
-module.exports = fanUsers;
+const User = mongoose.model("fanUsers", newUserSchema);
+module.exports = User;

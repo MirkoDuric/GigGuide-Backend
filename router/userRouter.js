@@ -326,7 +326,7 @@ router.put("/:id/song/:songId", (req, res) => {
   const { name, duration, url, releaseDate, album } = req.body;
   User.updateOne(
     { _id: id, "songsList._id": songId },
-    { $update: { "songsList.$": { name, duration, url, releaseDate, album } } },
+    { $set: { "songsList.$": { name, duration, url, releaseDate, album } } },
     { new: true }
   )
     .then((data) => {
@@ -342,7 +342,7 @@ router.put("/:id/song/:songId", (req, res) => {
     });
 });
 
-router.put("/:id/upcomingEvent/:eventid", (req, res) => {
+router.put("/:id/upcomingEvent/:eventId", (req, res) => {
   const { id, eventId } = req.params;
   const { date, startTime, venue, address, ticketUrl, info } = req.body;
   User.updateOne(

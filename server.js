@@ -16,6 +16,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/api/user", userRouter);
 
 const artists = require("./router/getLocalArtistsRouter.js");

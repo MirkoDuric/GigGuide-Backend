@@ -38,9 +38,6 @@ router.get("/:id", (req, res) => {
 
 router.get("/:name/:country/:city/:genre", (req, res) => {
   let { name, country, city, genre } = req.params;
-  console.log(
-    `Name: ${name}, City: ${city}, Country: ${country}, Genre: ${genre}`
-  );
   if (name === "0") {
     name = "";
   }
@@ -53,11 +50,8 @@ router.get("/:name/:country/:city/:genre", (req, res) => {
   if (genre === "0") {
     genre = "";
   }
-  console.log(
-    `Name: ${name}, City: ${city}, Country: ${country}, Genre: ${genre}`
-  );
   User.find({
-    //userType: "Artist",
+    userType: "Artist",
     name: { $regex: name },
     city: { $regex: city },
     country: { $regex: country },

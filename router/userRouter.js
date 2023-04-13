@@ -182,7 +182,8 @@ router.post("/login", (req, res) => {
         return res.status(404).send("password incorrect");
       }
       const token = generateToken({ username: user.username });
-      res.json({ token });
+      const response = user;
+      res.json({ token, response });
     });
   });
 });

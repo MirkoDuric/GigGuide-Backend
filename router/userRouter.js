@@ -226,45 +226,43 @@ router.put(
       }
     };
     const bannerPicture = getBannerPicture();
-    bcrypt
-      .hash(password, 10)
-      .then((hashedPassword) => {
-        User.findByIdAndUpdate(
-          id,
-          {
-            name,
-            username,
-            email,
-            password: hashedPassword,
-            age,
-            favouriteGenre,
-            favouriteArtists,
-            favouriteSongs,
-            planedEvents,
-            city,
-            country,
-            genre,
-            bio,
-            members,
-            bandUrl,
-            profilePicture,
-            bannerPicture,
-          },
-          { new: true }
-        )
-          .then((data) => {
-            if (!data) {
-              // Send 404 if no artist is found with the specified _id
-              return res.sendStatus(404);
-            }
-            res.json(data);
-          })
-          .catch((err) => {
-            console.log(err.message);
-            res.sendStatus(500);
-          });
-      })
-      .catch((e) => console.log(e.message));
+    bcrypt.hash(password, 10).then((hashedPassword) => {
+      User.findByIdAndUpdate(
+        id,
+        {
+          name,
+          username,
+          email,
+          password: hashedPassword,
+          age,
+          favouriteGenre,
+          favouriteArtists,
+          favouriteSongs,
+          planedEvents,
+          city,
+          country,
+          genre,
+          bio,
+          members,
+          bandUrl,
+          profilePicture,
+          bannerPicture,
+        },
+        { new: true }
+      )
+        .then((data) => {
+          if (!data) {
+            // Send 404 if no artist is found with the specified _id
+            return res.sendStatus(404);
+          }
+          res.json(data);
+        })
+        .catch((err) => {
+          console.log(err.message);
+          res.sendStatus(500);
+        })
+        .catch((e) => console.log(e.message));
+    });
   }
 );
 
@@ -359,6 +357,30 @@ router.put("/:id/upcomingEvent/:eventId", (req, res) => {
           info,
         },
       },
+    },
+    { new: true }
+  )
+    .then((data) => {
+      if (!data) {
+        // Send 404 if no artist is found with the specified _id
+        return res.sendStatus(404);
+      }
+      res.json(data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.sendStatus(500);
+    });
+});
+
+router.put("/:id/faveArtist", (req, res) => {
+  const { id } = req.params;
+  const { favouriteArtists } = req.body;
+
+  User.findByIdAndUpdate(
+    id,
+    {
+      favouriteArtists,
     },
     { new: true }
   )

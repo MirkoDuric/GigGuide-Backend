@@ -43,15 +43,12 @@ const newUserSchema = new mongoose.Schema(
     },
     favouriteArtists: {
       type: Array,
-      default: undefined,
     },
     favouriteSongs: {
       type: Array,
-      default: undefined,
     },
-    planedEvents: {
+    plannedEvents: {
       type: Array,
-      default: undefined,
     },
     userType: {
       type: String,
@@ -62,6 +59,7 @@ const newUserSchema = new mongoose.Schema(
     },
     genre: {
       type: String,
+      default: "",
     },
     songsList: {
       type: [

@@ -47,7 +47,7 @@ const newUserSchema = new mongoose.Schema(
     favouriteSongs: {
       type: Array,
     },
-    planedEvents: {
+    plannedEvents: {
       type: Array,
     },
     userType: {
@@ -59,6 +59,7 @@ const newUserSchema = new mongoose.Schema(
     },
     genre: {
       type: String,
+      default: "",
     },
     songsList: {
       type: [

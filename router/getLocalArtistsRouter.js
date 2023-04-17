@@ -5,7 +5,7 @@ const User = require("../models/newUser");
 
 //GET Create an endpoint to retrieve all local artists
 router.get("/", (req, res) => {
-  User.find({}).then((data) => res.json(data));
+  User.find({ userType: "Artist" }).then((data) => res.json(data));
 });
 
 //GET Create an endpoint to retrieve a specific local artist by id

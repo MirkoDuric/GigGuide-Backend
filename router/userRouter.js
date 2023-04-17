@@ -433,4 +433,35 @@ router.delete("/:id/upcomingEvent/:eventid", (req, res) => {
     });
 });
 
+router.get("/:id", (req, res) => {
+  const id = req.params.id;
+  User.findById(id)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send("User not found!");
+      } else {
+        return res.json(user);
+      }
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return res.sendStatus(500);
+    });
+});
+router.get("/:username", (req, res) => {
+  const username = req.params.username;
+  User.findById(username)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send("User not found!");
+      } else {
+        return res.json(user);
+      }
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return res.sendStatus(500);
+    });
+});
+
 module.exports = router;

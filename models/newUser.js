@@ -13,7 +13,7 @@ const newUserSchema = new mongoose.Schema(
     },
     age: {
       type: Number,
-      required: true,
+      required: false,
     },
     username: {
       type: String,
@@ -43,15 +43,12 @@ const newUserSchema = new mongoose.Schema(
     },
     favouriteArtists: {
       type: Array,
-      default: undefined,
     },
     favouriteSongs: {
       type: Array,
-      default: undefined,
     },
     planedEvents: {
       type: Array,
-      default: undefined,
     },
     userType: {
       type: String,

@@ -397,6 +397,30 @@ router.put("/:id/faveArtist", (req, res) => {
     });
 });
 
+router.put("/:id/plannedEvents", (req, res) => {
+  const { id } = req.params;
+  const { plannedEvents } = req.body;
+
+  User.findByIdAndUpdate(
+    id,
+    {
+      plannedEvents,
+    },
+    { new: true }
+  )
+    .then((data) => {
+      if (!data) {
+        // Send 404 if no artist is found with the specified _id
+        return res.sendStatus(404);
+      }
+      res.json(data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.sendStatus(500);
+    });
+});
+
 // DELETE Create an endpoint that DELETES an existing local artist in artist collection
 router.delete("/:id", (req, res) => {
   const id = req.params.id;

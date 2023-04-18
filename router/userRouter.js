@@ -268,10 +268,21 @@ router.put(
 
 router.put("/:id/upcomingEvent", (req, res) => {
   const { id } = req.params;
-  const { date, startTime, venue, address, ticketUrl, info } = req.body;
+  const {
+    eventName,
+    artistName,
+    date,
+    startTime,
+    venue,
+    address,
+    ticketUrl,
+    info,
+  } = req.body;
   const upcomingEvent = {
+    eventName,
+    artistName,
     date: date,
-    startTime: startTime,
+    startTime: date,
     venue: venue,
     address: address,
     ticketUrl: ticketUrl,
@@ -298,7 +309,6 @@ router.put("/:id/upcomingEvent", (req, res) => {
 router.put("/:id/song", (req, res) => {
   const { id } = req.params;
   const { name, duration, url, releaseDate, album } = req.body;
-
   const song = {
     name: name,
     duration: duration,
@@ -315,6 +325,7 @@ router.put("/:id/song", (req, res) => {
       res.json(data);
     })
     .catch((err) => {
+      console.log("Didn't receive request for song with id", id);
       console.log(err.message);
       res.sendStatus(500);
     });
@@ -359,6 +370,32 @@ router.put("/:id/upcomingEvent/:eventId", (req, res) => {
       },
     },
     { new: true }
+  )
+    .then((data) => {
+      if (!data) {
+        // Send 404 if no artist is found with the specified _id
+        return res.sendStatus(404);
+      }
+      res.json(data);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.sendStatus(500);
+    });
+});
+//CREATING OR UPDATING BIOGRAPHY
+router.put("/:id/biography", (req, res) => {
+  const { id } = req.params;
+  const { bio } = req.body;
+  console.log(req.body);
+  User.updateOne(
+    { _id: id },
+    {
+      $set: {
+        bio: bio,
+      },
+    },
+    { upsert: true, new: true }
   )
     .then((data) => {
       if (!data) {
@@ -477,6 +514,37 @@ router.delete("/:id/upcomingEvent/:eventid", (req, res) => {
     .catch((err) => {
       console.log(err.message);
       res.sendStatus(500);
+    });
+});
+
+router.get("/:id", (req, res) => {
+  const id = req.params.id;
+  User.findById(id)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send("User not found!");
+      } else {
+        return res.json(user);
+      }
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return res.sendStatus(500);
+    });
+});
+router.get("/:username", (req, res) => {
+  const username = req.params.username;
+  User.findById(username)
+    .then((user) => {
+      if (!user) {
+        return res.status(404).send("User not found!");
+      } else {
+        return res.json(user);
+      }
+    })
+    .catch((err) => {
+      console.log(err.message);
+      return res.sendStatus(500);
     });
 });
 

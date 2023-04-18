@@ -354,17 +354,27 @@ router.put("/:id/song/:songId", (req, res) => {
 
 router.put("/:id/upcomingEvent/:eventId", (req, res) => {
   const { id, eventId } = req.params;
-  const { date, startTime, venue, address, ticketUrl, info } = req.body;
+  const {
+    date,
+    eventName,
+    artistName,
+    startTime,
+    venue,
+    address,
+    ticketUrl,
+    info,
+  } = req.body;
   User.updateOne(
     { _id: id, "upcomingEvents._id": eventId },
     {
       $set: {
         "upcomingEvents.$": {
+          eventName,
+          artistName,
           date,
           startTime,
           venue,
           address,
-          ticketUrl,
           info,
         },
       },

@@ -56,6 +56,8 @@ const newUserSchema = new mongoose.Schema(
     },
     bio: {
       type: String,
+      default: "",
+      unique: true,
     },
     genre: {
       type: String,
@@ -69,7 +71,7 @@ const newUserSchema = new mongoose.Schema(
             required: true,
           },
           duration: {
-            type: Number,
+            type: String,
           },
           url: {
             type: String,
@@ -82,18 +84,23 @@ const newUserSchema = new mongoose.Schema(
           },
         },
       ],
-      default: undefined,
+      default: [],
     },
     upcomingEvents: {
       type: [
         {
+          eventName: {
+            type: String,
+          },
+          artistName: {
+            type: String,
+          },
           date: {
             type: Date,
             required: true,
           },
           startTime: {
             type: Date,
-            required: true,
           },
           venue: {
             type: String,
@@ -111,7 +118,7 @@ const newUserSchema = new mongoose.Schema(
           },
         },
       ],
-      default: undefined,
+      default: [],
     },
     members: {
       type: [String],

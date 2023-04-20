@@ -55,7 +55,7 @@ router.get("/:name/:country/:city/:genre", (req, res) => {
     name: { $regex: name },
     city: { $regex: city },
     country: { $regex: country },
-    genre: { $regex: genre },
+    //genre: { $regex: genre },
   })
     .then((data) => {
       if (!data) {
